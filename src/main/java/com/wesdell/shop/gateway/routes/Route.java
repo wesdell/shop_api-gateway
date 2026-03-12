@@ -1,5 +1,6 @@
 package com.wesdell.shop.gateway.routes;
 
+import org.springframework.cloud.gateway.server.mvc.filter.CircuitBreakerFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
+
+import java.net.URI;
 
 import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.uri;
 import static org.springframework.cloud.gateway.server.mvc.filter.FilterFunctions.setPath;
@@ -24,6 +27,10 @@ public class Route {
                         HandlerFunctions.http()
                 )
                 .before(uri("http://localhost:8080"))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
+                        "product-service_circuit-breaker",
+                        URI.create("forward:/fallback")
+                ))
                 .build();
     }
 
@@ -37,6 +44,10 @@ public class Route {
                 )
                 .before(uri("http://localhost:8080"))
                 .filter(setPath("/api-docs"))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
+                        "product-service-swagger_circuit-breaker",
+                        URI.create("forward:/fallback")
+                ))
                 .build();
     }
 
@@ -49,6 +60,10 @@ public class Route {
                         HandlerFunctions.http()
                 )
                 .before(uri("http://localhost:8081"))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
+                        "order-service_circuit-breaker",
+                        URI.create("forward:/fallback")
+                ))
                 .build();
     }
 
@@ -62,6 +77,10 @@ public class Route {
                 )
                 .before(uri("http://localhost:8081"))
                 .filter(setPath("/api-docs"))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
+                        "order-service-swagger_circuit-breaker",
+                        URI.create("forward:/fallback")
+                ))
                 .build();
     }
 
@@ -74,6 +93,10 @@ public class Route {
                         HandlerFunctions.http()
                 )
                 .before(uri("http://localhost:8082"))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
+                        "inventory-service_circuit-breaker",
+                        URI.create("forward:/fallback")
+                ))
                 .build();
     }
 
@@ -87,6 +110,10 @@ public class Route {
                 )
                 .before(uri("http://localhost:8082"))
                 .filter(setPath("/api-docs"))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
+                        "inventory-service-swagger_circuit-breaker",
+                        URI.create("forward:/fallback")
+                ))
                 .build();
     }
 
