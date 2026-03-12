@@ -4,6 +4,7 @@ import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctio
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
@@ -89,4 +90,16 @@ public class Route {
                 .build();
     }
 
+    @Bean
+    public RouterFunction<ServerResponse> callFallbackRoute() {
+        return GatewayRouterFunctions
+                .route("fallback_route")
+                .GET(
+                        "/fallback",
+                        request -> ServerResponse
+                                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                                .body("Service unavailable. Please, try again later!")
+                )
+                .build();
+    }
 }
