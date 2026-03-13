@@ -6,6 +6,7 @@ import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.function.HandlerFilterFunction;
 import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
@@ -27,10 +28,9 @@ public class Route {
                         HandlerFunctions.http()
                 )
                 .before(uri("http://localhost:8080"))
-                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
-                        "product-service_circuit-breaker",
-                        URI.create("forward:/fallback")
-                ))
+                .filter(
+                        setCircuitBreaker("product-service-cb")
+                )
                 .build();
     }
 
@@ -44,10 +44,9 @@ public class Route {
                 )
                 .before(uri("http://localhost:8080"))
                 .filter(setPath("/api-docs"))
-                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
-                        "product-service-swagger_circuit-breaker",
-                        URI.create("forward:/fallback")
-                ))
+                .filter(
+                        setCircuitBreaker("product-service-swagger-cb")
+                )
                 .build();
     }
 
@@ -60,10 +59,9 @@ public class Route {
                         HandlerFunctions.http()
                 )
                 .before(uri("http://localhost:8081"))
-                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
-                        "order-service_circuit-breaker",
-                        URI.create("forward:/fallback")
-                ))
+                .filter(
+                        setCircuitBreaker("order-service-cb")
+                )
                 .build();
     }
 
@@ -77,10 +75,9 @@ public class Route {
                 )
                 .before(uri("http://localhost:8081"))
                 .filter(setPath("/api-docs"))
-                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
-                        "order-service-swagger_circuit-breaker",
-                        URI.create("forward:/fallback")
-                ))
+                .filter(
+                        setCircuitBreaker("order-service-swagger-cb")
+                )
                 .build();
     }
 
@@ -93,10 +90,9 @@ public class Route {
                         HandlerFunctions.http()
                 )
                 .before(uri("http://localhost:8082"))
-                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
-                        "inventory-service_circuit-breaker",
-                        URI.create("forward:/fallback")
-                ))
+                .filter(
+                        setCircuitBreaker("inventory-service-cb")
+                )
                 .build();
     }
 
@@ -110,10 +106,9 @@ public class Route {
                 )
                 .before(uri("http://localhost:8082"))
                 .filter(setPath("/api-docs"))
-                .filter(CircuitBreakerFilterFunctions.circuitBreaker(
-                        "inventory-service-swagger_circuit-breaker",
-                        URI.create("forward:/fallback")
-                ))
+                .filter(
+                        setCircuitBreaker("inventory-service-swagger-cb")
+                )
                 .build();
     }
 
@@ -128,5 +123,12 @@ public class Route {
                                 .body("Service unavailable. Please, try again later!")
                 )
                 .build();
+    }
+
+    private HandlerFilterFunction<ServerResponse, ServerResponse> setCircuitBreaker(String name) {
+        return CircuitBreakerFilterFunctions.circuitBreaker(config -> config
+                .setId(name)
+                .setFallbackUri(URI.create("forward:/fallback"))
+        );
     }
 }
